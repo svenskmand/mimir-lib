@@ -19,3 +19,33 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+package orderings
+
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"github.com/svenskmand/mimir-lib/internal"
+	"github.com/svenskmand/mimir-lib/model/metrics"
+	"github.com/svenskmand/mimir-lib/model/placement"
+)
+
+func TestCustomByNegate(t *testing.T) {
+	ordering := Negate(
+		Constant(2.0))
+	group1, group2, groups, entity := internal.SetupTwoGroupsAndEntity()
+	scopeSet := placement.NewScopeSet(groups)
+
+	assert.Equal(t, -2.0, ordering.Tuple(group1, scopeSet, entity)[0])
+	assert.Equal(t, -2.0, ordering.Tuple(group2, scopeSet, entity)[0])
+}
+
+func TestOrderByMetricReverseFreeDisk(t *testing.T) {
+	ordering := Negate(Metric(GroupSource, metrics.DiskFree))
+	group1, group2, groups, entity := internal.SetupTwoGroupsAndEntity()
+	scopeSet := placement.NewScopeSet(groups)
+
+	assert.True(t, placement.Less(ordering.Tuple(group2, scopeSet, entity), ordering.Tuple(group1, scopeSet, entity)))
+}

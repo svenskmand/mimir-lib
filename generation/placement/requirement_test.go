@@ -19,3 +19,37 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+package placement
+
+import (
+	"testing"
+	"time"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/svenskmand/mimir-lib/generation"
+)
+
+func TestEmptyRequirement_Generate(t *testing.T) {
+	builder := &emptyRequirement{}
+	requirement := builder.Generate(generation.NewRandom(42), time.Duration(0))
+
+	assert.Equal(t, builder, requirement)
+}
+
+func TestEmptyRequirement_Passed(t *testing.T) {
+	requirement := (&emptyRequirement{}).Generate(generation.NewRandom(42), time.Duration(0))
+	assert.True(t, requirement.Passed(nil, nil, nil, nil))
+}
+
+func TestEmptyRequirement_String(t *testing.T) {
+	requirement := (&emptyRequirement{}).Generate(generation.NewRandom(42), time.Duration(0))
+	assert.Equal(t, "The empty requirement", requirement.String())
+}
+
+func TestEmptyRequirement_Composite(t *testing.T) {
+	requirement := (&emptyRequirement{}).Generate(generation.NewRandom(42), time.Duration(0))
+	composite, transcriptType := requirement.Composite()
+	assert.False(t, composite)
+	assert.Equal(t, "empty", transcriptType)
+}

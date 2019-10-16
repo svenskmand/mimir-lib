@@ -19,3 +19,31 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+package orderings
+
+import (
+	"testing"
+	"time"
+
+	"github.com/stretchr/testify/assert"
+
+	"github.com/svenskmand/mimir-lib/generation"
+	"github.com/svenskmand/mimir-lib/internal"
+	"github.com/svenskmand/mimir-lib/model/metrics"
+	mOrderings "github.com/svenskmand/mimir-lib/model/orderings"
+	"github.com/svenskmand/mimir-lib/model/placement"
+)
+
+func TestOrderingBuilder_Generate(t *testing.T) {
+	ordering := NewOrderingBuilder(Metric(mOrderings.GroupSource, metrics.DiskFree)).
+		Generate(generation.NewRandom(42), time.Duration(0))
+	group1, group2, groups, entity := internal.SetupTwoGroupsAndEntity()
+	scopeSet := placement.NewScopeSet(groups)
+
+	tuple1 := ordering.Tuple(group1, scopeSet, entity)
+	tuple2 := ordering.Tuple(group2, scopeSet, entity)
+
+	assert.True(t, placement.Less(tuple1, tuple2))
+	assert.False(t, placement.Less(tuple2, tuple1))
+}

@@ -19,3 +19,36 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+package placement_test
+
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/svenskmand/mimir-lib/examples"
+	"github.com/svenskmand/mimir-lib/generation"
+	"github.com/svenskmand/mimir-lib/model/labels"
+)
+
+func TestGroupBuilder_Generate(t *testing.T) {
+	random := generation.NewRandom(42)
+	builder, templates := examples.CreateHostGroupsBuilder()
+	templates.Bind(examples.Datacenter.Name(), "dc1")
+	groups := examples.CreateHostGroups(random, builder, templates, 2, 8)
+
+	assert.Equal(t, 8, len(groups))
+	rackCounts := map[string]int{}
+	datacenterPattern := labels.NewLabel(examples.Datacenter.Name(), "*")
+	rackPattern := labels.NewLabel(examples.Rack.Name(), "*")
+	for _, group := range groups {
+		assert.Equal(t, 1, group.Labels.Count(datacenterPattern))
+		for _, label := range group.Labels.Find(rackPattern) {
+			rackCounts[label.String()] += group.Labels.Count(label)
+		}
+	}
+	assert.Equal(t, 2, len(rackCounts))
+	for _, count := range rackCounts {
+		assert.Equal(t, 4, count)
+	}
+}

@@ -19,3 +19,32 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+package placement
+
+import (
+	"time"
+
+	"github.com/svenskmand/mimir-lib/generation"
+	"github.com/svenskmand/mimir-lib/model/placement"
+)
+
+// OrderingBuilder is used to generate new ordering for use in tests and benchmarks.
+type OrderingBuilder interface {
+	// Generate will generate an ordering that depends on the random source and the time.
+	Generate(random generation.Random, time time.Duration) placement.Ordering
+}
+
+type nameOrdering struct{}
+
+func (ordering *nameOrdering) Generate(random generation.Random, time time.Duration) placement.Ordering {
+	return ordering
+}
+
+func (ordering *nameOrdering) Tuple(group *placement.Group, scopeSet *placement.ScopeSet, entity *placement.Entity) []float64 {
+	result := make([]float64, len(group.Name))
+	for i, char := range group.Name {
+		result[i] = float64(char)
+	}
+	return result
+}

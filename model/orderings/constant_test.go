@@ -19,3 +19,24 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+package orderings
+
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"github.com/svenskmand/mimir-lib/internal"
+	"github.com/svenskmand/mimir-lib/model/placement"
+)
+
+func TestCustomByConstant(t *testing.T) {
+	ordering := Inverse(
+		Constant(2.0))
+	group1, group2, groups, entity := internal.SetupTwoGroupsAndEntity()
+	scopeSet := placement.NewScopeSet(groups)
+
+	assert.Equal(t, 0.5, ordering.Tuple(group1, scopeSet, entity)[0])
+	assert.Equal(t, 0.5, ordering.Tuple(group2, scopeSet, entity)[0])
+}

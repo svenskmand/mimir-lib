@@ -19,3 +19,31 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+package placement
+
+import (
+	"github.com/svenskmand/mimir-lib/model/labels"
+	"github.com/svenskmand/mimir-lib/model/metrics"
+)
+
+// Entity represents an task, process or some entity that should run on a group.
+type Entity struct {
+	Name        string
+	Reservation Reserved
+	Requirement Requirement
+	Ordering    Ordering
+	Relations   *labels.Bag
+	Metrics     *metrics.Set
+}
+
+// NewEntity will create a new entity with the given name and creation time.
+func NewEntity(name string) *Entity {
+	return &Entity{
+		Name:        name,
+		Requirement: FailedRequirement(),
+		Ordering:    NameOrdering(),
+		Relations:   labels.NewBag(),
+		Metrics:     metrics.NewSet(),
+	}
+}

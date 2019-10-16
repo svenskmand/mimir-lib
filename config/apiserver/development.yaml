@@ -1,7 +1,0 @@
-logging:
-  level: info
-
-metrics:
-  multi_reporter: true
-  prometheus:
-    enable: true

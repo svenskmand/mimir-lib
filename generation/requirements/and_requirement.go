@@ -19,3 +19,34 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+package requirements
+
+import (
+	"time"
+
+	"github.com/svenskmand/mimir-lib/generation"
+	gPlacement "github.com/svenskmand/mimir-lib/generation/placement"
+	mPlacement "github.com/svenskmand/mimir-lib/model/placement"
+	"github.com/svenskmand/mimir-lib/model/requirements"
+)
+
+// NewAndRequirementBuilder will create a new and requirement builder for generating and requirements.
+func NewAndRequirementBuilder(subRequirements ...gPlacement.RequirementBuilder) gPlacement.RequirementBuilder {
+	return &andRequirementBuilder{
+		requirementBuilders: subRequirements,
+	}
+}
+
+type andRequirementBuilder struct {
+	requirementBuilders []gPlacement.RequirementBuilder
+}
+
+func (builder *andRequirementBuilder) Generate(random generation.Random, time time.Duration) mPlacement.Requirement {
+	subRequirements := make([]mPlacement.Requirement, 0, len(builder.requirementBuilders))
+	for _, subBuilder := range builder.requirementBuilders {
+		subRequirement := subBuilder.Generate(random, time)
+		subRequirements = append(subRequirements, subRequirement)
+	}
+	return requirements.NewAndRequirement(subRequirements...)
+}

@@ -19,3 +19,31 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+package orderings
+
+import (
+	"github.com/svenskmand/mimir-lib/model/placement"
+)
+
+// Negate will negate the given tuple.
+func Negate(subExpression placement.Ordering) placement.Ordering {
+	return &NegateCustom{
+		SubExpression: subExpression,
+	}
+}
+
+// NegateCustom can create a tuple of floats where each tuple entry is the negation of the same tuple entry created in
+// the sub-expression.
+type NegateCustom struct {
+	SubExpression placement.Ordering
+}
+
+// Tuple returns a tuple of floats created from the group, scope groups and the entity.
+func (custom *NegateCustom) Tuple(group *placement.Group, scopeSet *placement.ScopeSet, entity *placement.Entity) []float64 {
+	tuple := custom.SubExpression.Tuple(group, scopeSet, entity)
+	for i := range tuple {
+		tuple[i] = -tuple[i]
+	}
+	return tuple
+}

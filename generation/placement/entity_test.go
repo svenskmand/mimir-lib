@@ -19,3 +19,29 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+package placement_test
+
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/svenskmand/mimir-lib/examples"
+	"github.com/svenskmand/mimir-lib/generation"
+)
+
+func TestEntityBuilder_Generate(t *testing.T) {
+	random := generation.NewRandom(42)
+	entityBuilder, variables := examples.CreateSchemalessEntityBuilder()
+
+	variables.
+		Bind(examples.Instance.Name(), "somestore").
+		Bind(examples.Datacenter.Name(), "dc1")
+	entities := examples.CreateSchemalessEntities(random, entityBuilder, variables, 4, 4)
+
+	for _, entity := range entities {
+		assert.Equal(t, 2, entity.Relations.Size(), "incorrect relations count")
+		assert.Equal(t, 2, entity.Metrics.Size(), "incorrect metrics count")
+		assert.NotNil(t, entity.Requirement)
+	}
+}

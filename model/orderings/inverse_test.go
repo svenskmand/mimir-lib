@@ -19,3 +19,37 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+package orderings
+
+import (
+	"math"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"github.com/svenskmand/mimir-lib/internal"
+	"github.com/svenskmand/mimir-lib/model/metrics"
+	"github.com/svenskmand/mimir-lib/model/placement"
+)
+
+func TestCustomByInverse(t *testing.T) {
+	ordering := Inverse(
+		Metric(GroupSource, metrics.DiskFree))
+	group1, group2, groups, entity := internal.SetupTwoGroupsAndEntity()
+	scopeSet := placement.NewScopeSet(groups)
+
+	assert.Equal(t, 1.0, ordering.Tuple(group1, scopeSet, entity)[0]*metrics.TiB)
+	assert.Equal(t, 1.0/1.5, ordering.Tuple(group2, scopeSet, entity)[0]*metrics.TiB)
+}
+
+func TestCustomByInverseDivisionByZero(t *testing.T) {
+	ordering := Inverse(
+		// The groups have no network metrics so we divide by zero
+		Metric(GroupSource, metrics.NetworkFree))
+	group1, group2, groups, entity := internal.SetupTwoGroupsAndEntity()
+	scopeSet := placement.NewScopeSet(groups)
+
+	assert.Equal(t, math.Inf(1), ordering.Tuple(group1, scopeSet, entity)[0])
+	assert.Equal(t, math.Inf(1), ordering.Tuple(group2, scopeSet, entity)[0])
+}

@@ -19,3 +19,31 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+package orderings
+
+import (
+	"github.com/svenskmand/mimir-lib/model/placement"
+)
+
+// Concatenate will take a list of orderings and then make a concatenation that will behave like a lexicographic
+// ordering.
+func Concatenate(subExpressions ...placement.Ordering) placement.Ordering {
+	return &ConcatenateCustom{
+		SubExpressions: subExpressions,
+	}
+}
+
+// ConcatenateCustom can create a tuple of floats which is the concatenation of tuples created in the sub-expressions.
+type ConcatenateCustom struct {
+	SubExpressions []placement.Ordering
+}
+
+// Tuple returns a tuple of floats created from the group, scope groups and the entity.
+func (custom *ConcatenateCustom) Tuple(group *placement.Group, scopeSet *placement.ScopeSet, entity *placement.Entity) []float64 {
+	var tuple []float64
+	for _, subExpression := range custom.SubExpressions {
+		tuple = append(tuple, subExpression.Tuple(group, scopeSet, entity)...)
+	}
+	return tuple
+}

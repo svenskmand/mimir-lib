@@ -19,3 +19,41 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+package metrics
+
+import (
+	"testing"
+	"time"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/svenskmand/mimir-lib/generation"
+)
+
+func TestMetricTemplate_Bind(t *testing.T) {
+	template := NewTemplate(MemoryUsed)
+
+	_, value := template.Mapping()
+	assert.Equal(t, 0.0, value)
+	template.Bind(42.0)
+	_, value = template.Mapping()
+	assert.Equal(t, 42.0, value)
+}
+
+func TestMetricTemplate_Mapping(t *testing.T) {
+	template := NewTemplate(MemoryUsed)
+	template.Bind(42.0)
+
+	metricType, value := template.Mapping()
+	assert.Equal(t, MemoryUsed, metricType)
+	assert.Equal(t, 42.0, value)
+}
+
+func TestMetricTemplate_Instantiate(t *testing.T) {
+	template := NewTemplate(MemoryUsed)
+	template.Bind(42.0)
+
+	metricType, distribution := template.Instantiate()
+	assert.Equal(t, MemoryUsed, metricType)
+	assert.Equal(t, 42.0, distribution.Value(generation.NewRandom(42), time.Duration(0)))
+}

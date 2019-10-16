@@ -1,1 +1,0 @@
-make aurorabridge-integ-test

@@ -19,3 +19,36 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+package requirements
+
+import (
+	"time"
+
+	"github.com/svenskmand/mimir-lib/generation"
+	gPlacement "github.com/svenskmand/mimir-lib/generation/placement"
+	"github.com/svenskmand/mimir-lib/model/metrics"
+	mPlacement "github.com/svenskmand/mimir-lib/model/placement"
+	"github.com/svenskmand/mimir-lib/model/requirements"
+)
+
+// NewMetricRequirementBuilder will create a new metrics requirement builder requiring the metric to fulfill the
+// requirement.
+func NewMetricRequirementBuilder(metricType metrics.Type, comparison requirements.Comparison,
+	value generation.Distribution) gPlacement.RequirementBuilder {
+	return &metricRequirementBuilder{
+		metricType: metricType,
+		comparison: comparison,
+		value:      value,
+	}
+}
+
+type metricRequirementBuilder struct {
+	metricType metrics.Type
+	comparison requirements.Comparison
+	value      generation.Distribution
+}
+
+func (builder *metricRequirementBuilder) Generate(random generation.Random, time time.Duration) mPlacement.Requirement {
+	return requirements.NewMetricRequirement(builder.metricType, builder.comparison, builder.value.Value(random, time))
+}

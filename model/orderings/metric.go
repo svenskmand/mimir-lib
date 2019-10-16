@@ -19,3 +19,35 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+package orderings
+
+import (
+	"github.com/svenskmand/mimir-lib/model/metrics"
+	"github.com/svenskmand/mimir-lib/model/placement"
+)
+
+// Metric will create an ordering which will order groups based on their value of the given metric type.
+func Metric(source Source, metricType metrics.Type) placement.Ordering {
+	return &MetricCustom{
+		Source:     source,
+		MetricType: metricType,
+	}
+}
+
+// MetricCustom can create a tuple of one float which is the value of the metric found in the given source.
+type MetricCustom struct {
+	Source     Source
+	MetricType metrics.Type
+}
+
+// Tuple returns a tuple of floats created from the group, scope groups and the entity.
+func (custom *MetricCustom) Tuple(group *placement.Group, scopeSet *placement.ScopeSet, entity *placement.Entity) []float64 {
+	switch custom.Source {
+	case EntitySource:
+		return []float64{entity.Metrics.Get(custom.MetricType)}
+	case GroupSource:
+		return []float64{group.Metrics.Get(custom.MetricType)}
+	}
+	return []float64{0.0}
+}

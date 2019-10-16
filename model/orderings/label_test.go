@@ -19,3 +19,25 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+package orderings
+
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"github.com/svenskmand/mimir-lib/internal"
+	"github.com/svenskmand/mimir-lib/model/labels"
+	"github.com/svenskmand/mimir-lib/model/placement"
+)
+
+func TestOrderByLabel(t *testing.T) {
+	ordering := Label(
+		labels.NewLabel("rack", "*"),
+		labels.NewLabel("rack", "sjc1-a0084"))
+	group1, group2, groups, entity := internal.SetupTwoGroupsAndEntity()
+	scopeSet := placement.NewScopeSet(groups)
+
+	assert.True(t, placement.Less(ordering.Tuple(group1, scopeSet, entity), ordering.Tuple(group2, scopeSet, entity)))
+}

@@ -19,3 +19,34 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+package orderings
+
+import (
+	"time"
+
+	"github.com/svenskmand/mimir-lib/generation"
+	gPlacement "github.com/svenskmand/mimir-lib/generation/placement"
+	"github.com/svenskmand/mimir-lib/model/placement"
+)
+
+// OrderingBuilder is used to generate new orderings for use in tests and benchmarks.
+type OrderingBuilder interface {
+	// Generate will generate a custom ordering that depends on the random source and the time.
+	Generate(random generation.Random, time time.Duration) placement.Ordering
+}
+
+// NewOrderingBuilder creates a new builder for building orderings.
+func NewOrderingBuilder(builder OrderingBuilder) gPlacement.OrderingBuilder {
+	return &orderingBuilder{
+		subBuilder: builder,
+	}
+}
+
+type orderingBuilder struct {
+	subBuilder OrderingBuilder
+}
+
+func (builder *orderingBuilder) Generate(random generation.Random, time time.Duration) placement.Ordering {
+	return builder.subBuilder.Generate(random, time)
+}

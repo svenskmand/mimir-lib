@@ -19,3 +19,32 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+package orderings
+
+import (
+	"github.com/svenskmand/mimir-lib/model/labels"
+	"github.com/svenskmand/mimir-lib/model/placement"
+)
+
+// Label will create an ordering which will order groups based on the number of their labels matching
+// the given pattern.
+func Label(scope, pattern *labels.Label) placement.Ordering {
+	return &LabelCustom{
+		Scope:   scope,
+		Pattern: pattern,
+	}
+}
+
+// LabelCustom can create a tuple of one float which is the number of occurrences of labels that match the pattern
+// in the given scope.
+type LabelCustom struct {
+	Scope   *labels.Label
+	Pattern *labels.Label
+}
+
+// Tuple returns a tuple of floats created from the group, scope groups and the entity.
+func (custom *LabelCustom) Tuple(group *placement.Group, scopeSet *placement.ScopeSet, entity *placement.Entity) []float64 {
+	occurrences := scopeSet.LabelScope(group, custom.Scope).Count(custom.Pattern)
+	return []float64{float64(occurrences)}
+}

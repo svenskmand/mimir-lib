@@ -1,3 +1,0 @@
-cqos_advisor:
-  http_port: 5090
-  grpc_port: 5190

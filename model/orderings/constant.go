@@ -19,3 +19,26 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+package orderings
+
+import (
+	"github.com/svenskmand/mimir-lib/model/placement"
+)
+
+// Constant will return a tuple score which will always return a tuple of length one with the given constant.
+func Constant(constant float64) placement.Ordering {
+	return &ConstantCustom{
+		Constant: constant,
+	}
+}
+
+// ConstantCustom creates a tuple of one value which is always the given constant.
+type ConstantCustom struct {
+	Constant float64
+}
+
+// Tuple returns a tuple of floats created from the group, scope groups and the entity.
+func (custom *ConstantCustom) Tuple(group *placement.Group, scopeSet *placement.ScopeSet, entity *placement.Entity) []float64 {
+	return []float64{custom.Constant}
+}

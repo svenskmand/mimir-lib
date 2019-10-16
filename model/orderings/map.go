@@ -19,3 +19,33 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+package orderings
+
+import (
+	"github.com/svenskmand/mimir-lib/model/placement"
+)
+
+// Map will change the tuple according to which bucket each entry of the tuple falls.
+func Map(mapping *Mapping, subExpression placement.Ordering) placement.Ordering {
+	return &MapCustom{
+		Mapping:       mapping,
+		SubExpression: subExpression,
+	}
+}
+
+// MapCustom creates a tuple from the sub-expression and maps each entry of the tuple to a different value according
+// to the given mapping.
+type MapCustom struct {
+	Mapping       *Mapping
+	SubExpression placement.Ordering
+}
+
+// Tuple returns a tuple of floats created from the group, scope groups and the entity.
+func (custom *MapCustom) Tuple(group *placement.Group, scopeSet *placement.ScopeSet, entity *placement.Entity) []float64 {
+	tuple := custom.SubExpression.Tuple(group, scopeSet, entity)
+	for i := range tuple {
+		tuple[i] = custom.Mapping.Map(tuple[i])
+	}
+	return tuple
+}

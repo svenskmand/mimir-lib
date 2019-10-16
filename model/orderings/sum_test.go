@@ -19,3 +19,34 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+package orderings
+
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+
+	"github.com/svenskmand/mimir-lib/internal"
+	"github.com/svenskmand/mimir-lib/model/metrics"
+	"github.com/svenskmand/mimir-lib/model/placement"
+)
+
+func TestOrderBySummationOfFreeMemoryAndDisk(t *testing.T) {
+	ordering := Negate(
+		Sum(
+			Metric(GroupSource, metrics.MemoryFree),
+			Metric(GroupSource, metrics.DiskFree),
+		),
+	)
+	group1, group2, groups, entity := internal.SetupTwoGroupsAndEntity()
+	scopeSet := placement.NewScopeSet(groups)
+
+	assert.True(t, placement.Less(ordering.Tuple(group2, scopeSet, entity), ordering.Tuple(group1, scopeSet, entity)))
+
+	expected1 := group1.Metrics.Get(metrics.MemoryFree) + group1.Metrics.Get(metrics.DiskFree)
+	assert.Equal(t, -expected1, ordering.Tuple(group1, scopeSet, entity)[0])
+
+	expected2 := group2.Metrics.Get(metrics.MemoryFree) + group2.Metrics.Get(metrics.DiskFree)
+	assert.Equal(t, -expected2, ordering.Tuple(group2, scopeSet, entity)[0])
+}

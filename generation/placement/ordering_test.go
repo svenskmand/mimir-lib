@@ -19,3 +19,32 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+package placement
+
+import (
+	"testing"
+	"time"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/svenskmand/mimir-lib/generation"
+	"github.com/svenskmand/mimir-lib/model/placement"
+)
+
+func TestNameOrdering_Generate(t *testing.T) {
+	builder := &nameOrdering{}
+	ordering := builder.Generate(generation.NewRandom(42), time.Duration(0))
+	assert.Equal(t, builder, ordering)
+}
+
+func TestNameOrdering_Less(t *testing.T) {
+	ordering := (&nameOrdering{}).Generate(generation.NewRandom(42), time.Duration(0))
+	group1 := &placement.Group{Name: "a"}
+	group2 := &placement.Group{Name: "b"}
+
+	tuple1 := ordering.Tuple(group1, nil, nil)
+	tuple2 := ordering.Tuple(group2, nil, nil)
+
+	assert.True(t, placement.Less(tuple1, tuple2))
+	assert.False(t, placement.Less(tuple2, tuple1))
+}

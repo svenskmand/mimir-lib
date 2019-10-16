@@ -19,3 +19,29 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+package requirements
+
+import (
+	"testing"
+	"time"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/svenskmand/mimir-lib/generation"
+	"github.com/svenskmand/mimir-lib/model/metrics"
+	"github.com/svenskmand/mimir-lib/model/requirements"
+)
+
+func TestAndRequirementBuilder_Generate(t *testing.T) {
+	builder := NewAndRequirementBuilder(
+		NewMetricRequirementBuilder(
+			metrics.DiskFree,
+			requirements.GreaterThanEqual,
+			generation.NewConstantGaussian(2.0*metrics.GiB, 0.0)))
+	requirement, ok := builder.Generate(generation.NewRandom(42), time.Duration(0)).(*requirements.AndRequirement)
+
+	assert.True(t, ok)
+	assert.Equal(t, 1, len(requirement.Requirements))
+	_, ok = requirement.Requirements[0].(*requirements.MetricRequirement)
+	assert.True(t, ok)
+}

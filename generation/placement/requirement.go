@@ -19,3 +19,38 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+package placement
+
+import (
+	"time"
+
+	"github.com/svenskmand/mimir-lib/generation"
+	"github.com/svenskmand/mimir-lib/model/placement"
+)
+
+// RequirementBuilder is used to generate new requirements for use in tests and benchmarks.
+type RequirementBuilder interface {
+	// Generate will generate a requirement and a metric set that depends on the random source and the time.
+	Generate(random generation.Random, time time.Duration) placement.Requirement
+}
+
+type emptyRequirement struct{}
+
+func (requirement *emptyRequirement) Generate(random generation.Random, time time.Duration) placement.Requirement {
+	return requirement
+}
+
+func (requirement *emptyRequirement) Passed(group *placement.Group, scopeSet *placement.ScopeSet,
+	entity *placement.Entity, transcript *placement.Transcript) bool {
+	transcript.IncPassed()
+	return true
+}
+
+func (requirement *emptyRequirement) String() string {
+	return "The empty requirement"
+}
+
+func (requirement *emptyRequirement) Composite() (bool, string) {
+	return false, "empty"
+}

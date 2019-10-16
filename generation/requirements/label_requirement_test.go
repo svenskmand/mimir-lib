@@ -19,3 +19,32 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
+package requirements
+
+import (
+	"testing"
+	"time"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/svenskmand/mimir-lib/generation"
+	"github.com/svenskmand/mimir-lib/model/labels"
+	"github.com/svenskmand/mimir-lib/model/requirements"
+)
+
+func TestLabelRequirementBuilder_Generate(t *testing.T) {
+	scope := labels.NewTemplate("rack", "*")
+	label := labels.NewTemplate("sku", "A")
+	builder := NewLabelRequirementBuilder(
+		scope,
+		label,
+		requirements.GreaterThanEqual,
+		1,
+	)
+	requirement, ok := builder.Generate(generation.NewRandom(42), time.Duration(0)).(*requirements.LabelRequirement)
+	assert.True(t, ok)
+	assert.Equal(t, scope.Instantiate(), requirement.Scope)
+	assert.Equal(t, label.Instantiate(), requirement.Label)
+	assert.Equal(t, requirements.GreaterThanEqual, requirement.Comparison)
+	assert.Equal(t, 1, requirement.Occurrences)
+}
